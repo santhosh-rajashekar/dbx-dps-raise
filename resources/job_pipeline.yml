@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    adoit_data_product:
+      name: "ADOIT Data Product — Full Pipeline"
+      description: "Runs all ADOIT domain notebooks: setup → pipeline → governance"
+      tasks:
+        - task_key: setup
+          description: "Create catalog, schemas, tables, tags, grants"
+          notebook_task:
+            notebook_path: ../src/notebooks/00_Adoit_Setup.ipynb
+        - task_key: pipeline
+          depends_on:
+            - task_key: setup
+          description: "ADOIT: Bronze → Silver → Gold (Application Landscape)"
+          notebook_task:
+            notebook_path: ../src/notebooks/01_Adoit_Pipeline.ipynb
+        - task_key: governance
+          depends_on:
+            - task_key: pipeline
+          description: "Quality checks, contracts, observability, CDF, UDFs, sharing"
+          notebook_task:
+            notebook_path: ../src/notebooks/02_Adoit_Governance.ipynb

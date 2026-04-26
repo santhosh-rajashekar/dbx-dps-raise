@@ -1,0 +1,18 @@
+resources:
+  schemas:
+    adoit_bronze:
+      name: bronze
+      catalog_name: ${var.adoit_catalog}
+      comment: "Raw Zone | Ingested from ADOIT EA tool | Owner: EA Team"
+    adoit_silver:
+      name: silver
+      catalog_name: ${var.adoit_catalog}
+      comment: "Curated Zone | Cleansed and enriched | Owner: EA Team"
+    adoit_gold:
+      name: gold
+      catalog_name: ${var.adoit_catalog}
+      comment: "Product Zone | Business-ready data products | Owner: EA Team"
+    adoit_governance:
+      name: governance
+      catalog_name: ${var.adoit_catalog}
+      comment: "Governance Zone | Quality, contracts, observability | Owner: EA Team"

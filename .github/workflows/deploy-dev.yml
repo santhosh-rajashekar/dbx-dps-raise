@@ -1,0 +1,55 @@
+name: "Deploy ADOIT to Dev"
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+jobs:
+  deploy:
+    name: "Deploy ADOIT bundle to dev"
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate
+        run: databricks bundle validate
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_BUNDLE_ENV: dev
+      - name: Deploy
+        run: databricks bundle deploy
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_BUNDLE_ENV: dev
+      - if: success()
+        run: |
+          echo "## ✅ ADOIT Dev Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "**Domain:** Enterprise Architecture" >> $GITHUB_STEP_SUMMARY
+          echo "**Catalog:** adoit_product" >> $GITHUB_STEP_SUMMARY
+  run-pipeline:
+    name: "Run ADOIT pipeline"
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-setup]')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Run pipeline
+        run: databricks bundle run adoit_data_product
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_BUNDLE_ENV: dev
+      - if: success()
+        run: echo "✅ ADOIT pipeline complete — Application Landscape ready" >> $GITHUB_STEP_SUMMARY

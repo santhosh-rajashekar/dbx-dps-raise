@@ -1,0 +1,34 @@
+bundle:
+  name: dbx-dps-raise
+  engine: direct
+
+variables:
+  storage_account:
+    description: "ADLS storage account name for managed locations"
+    default: "sadpsddbxdev"
+  storage_container:
+    description: "ADLS container for data products"
+    default: "data-products"
+  adoit_catalog:
+    description: "ADOIT domain catalog name"
+    default: "adoit_product"
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405605730069993.13.azuredatabricks.net
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405605730069993.13.azuredatabricks.net
+    variables:
+      adoit_catalog: "adoit_product"
+    permissions:
+      - user_name: skarotirajashekar@godevsuite060.onmicrosoft.com
+        level: CAN_MANAGE
